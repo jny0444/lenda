@@ -21,8 +21,10 @@ export default function Home() {
         <div className="bg-white border text-black text-7xl border-white p-5 text-center rounded-xl flex items-center justify-center col-span-2">
           Lenda
         </div>
-        <div className="bg-white border border-white p-5 text-center rounded-xl flex items-center justify-center">
-          9
+        <div className="bg-white border text-black text-2xl border-white p-5 text-center rounded-xl flex flex-col items-center justify-center">
+          <p>Swap.</p>
+          <p>Stake.</p>
+          <p>Create.</p>
         </div>
       </div>
 
