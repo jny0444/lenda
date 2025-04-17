@@ -45,7 +45,7 @@ export default function Home() {
           <p>Create.</p>
           <p>Your DeFi journey starts here.</p>
         </div>
-        <div className="bg-white border text-black text-[160px] border-white p-5 text-center rounded-xl flex items-center justify-center">
+        <div className="bg-white border text-black text-9xl border-white p-5 text-center rounded-xl flex items-center justify-center">
           Lenda
         </div>
       </div>
