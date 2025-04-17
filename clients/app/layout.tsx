@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "./provider";
+import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "Simple DEX",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider>{children}</Provider>
+        <Provider>
+          <Navbar />
+          {children}</Provider>
       </body>
     </html>
   );

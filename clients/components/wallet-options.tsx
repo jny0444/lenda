@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Connector, useConnect } from "wagmi";
+import { useConnect } from "wagmi";
 
 export function WalletOptions() {
   const { connectors, connect } = useConnect();
@@ -10,12 +10,13 @@ export function WalletOptions() {
   );
 
   return injectedConnector ? (
-    <div className="">
+    <div className="text-black bg-orange-100 hover:text-white font-medium transition-colors duration-200 ease-in-out px-3 py-1.5 border border-orange-100 hover:bg-black rounded-md focus:outline-none focus:ring-1 focus:ring-orange-100 inline-block cursor-pointer">
       <button
         key={injectedConnector.uid}
         onClick={() => connect({ connector: injectedConnector })}
+        className="bg-transparent border-none focus:outline-none"
       >
-        {injectedConnector.name}
+        Connect
       </button>
     </div>
   ) : null;
