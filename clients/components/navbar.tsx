@@ -25,17 +25,23 @@ export default function Navbar() {
     const isActive = pathname === path;
     return `font-medium text-lg transition-colors duration-200 ease-in-out px-2 py-1 rounded-md text-center md:text-left ${
       isActive
-        ? "bg-orange-100 !text-black"
-        : "text-orange-50 hover:text-black hover:bg-orange-100"
+        ? "bg-white !text-black"
+        : "text-orange-50 hover:text-black hover:bg-white"
     }`;
   }
 
   return (
-    <div className="flex justify-between items-center p-4 relative w-full">
+    <div className="flex justify-between items-center p-3 pt-4 relative w-full">
       {/* Logo - Responsive sizing */}
       <div className="flex-shrink-0">
         <p className="text-3xl md:text-6xl transition-all duration-300 text-orange-50">
-          <Link href={"/"}>💩 Lenda</Link>
+          <Link href={"/"}>
+            <span className="bg-white inline-flex items-center justify-center w-16 h-16 rounded-md">
+              {" "}
+              💩
+            </span>{" "}
+            Lenda
+          </Link>
         </p>
       </div>
 
@@ -47,7 +53,7 @@ export default function Navbar() {
           aria-label="Toggle menu"
         >
           <div
-            className="w-6 h-0.5 bg-orange-100 mb-1.5 transition-all duration-300 ease-in-out origin-center"
+            className="w-6 h-0.5 bg-white mb-1.5 transition-all duration-300 ease-in-out origin-center"
             style={{
               transform: isMenuOpen
                 ? "translateY(8px) rotate(45deg)"
@@ -55,14 +61,14 @@ export default function Navbar() {
             }}
           ></div>
           <div
-            className="w-6 h-0.5 bg-orange-100 transition-all duration-300 ease-in-out"
+            className="w-6 h-0.5 bg-white transition-all duration-300 ease-in-out"
             style={{
               opacity: isMenuOpen ? "0" : "1",
               transform: isMenuOpen ? "scale(0)" : "scale(1)",
             }}
           ></div>
           <div
-            className="w-6 h-0.5 bg-orange-100 mt-1.5 transition-all duration-300 ease-in-out origin-center"
+            className="w-6 h-0.5 bg-white mt-1.5 transition-all duration-300 ease-in-out origin-center"
             style={{
               transform: isMenuOpen
                 ? "translateY(-8px) rotate(-45deg)"
@@ -108,7 +114,7 @@ export default function Navbar() {
         <div className="hidden md:block">
           <ConnectWallet />
         </div>
-        <div className="md:hidden text-2xl text-orange-50 text-[18px] bg-orange-50 font-medium px-3 py-1.5 border border-orange-100 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-100 inline-block cursor-pointer">
+        <div className="md:hidden text-2xl text-orange-50 text-[18px] bg-white font-medium px-3 py-1.5 border border-orange-100 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-100 inline-block cursor-pointer">
           🍙
         </div>
       </div>
