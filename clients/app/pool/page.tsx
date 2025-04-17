@@ -1,3 +1,6 @@
+// will list all the available pools
+// you can provide liquidity to the pool and receive LP shares
+
 export default function Pool() {
   return (
     <div>

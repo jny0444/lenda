@@ -1,3 +1,6 @@
+// contains the list of all the tokens  ! priority
+// you can also launch your own token(not sure)  ! try to implement
+
 export default function TokenLaunch() {
   return (
     <div>

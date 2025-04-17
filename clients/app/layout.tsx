@@ -4,7 +4,7 @@ import Provider from "./provider";
 import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Simple DEX",
+  title: "Lenda",
   description: "Simple DEX",
 };
 
@@ -15,6 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.png" />
+      </head>
       <body>
         <Provider>
           <Navbar />

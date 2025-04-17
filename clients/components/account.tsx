@@ -8,7 +8,7 @@ export function Account() {
 
   return (
     <div
-      className="text-orange-50 text-[18px] font-medium px-3 py-1.5 border border-orange-100 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-100 inline-block cursor-pointer"
+      className="text-black text-[18px] bg-orange-50 font-medium px-3 py-1.5 border border-orange-100 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-100 inline-block cursor-pointer"
       onClick={() => disconnect()}
     >
       {ensAvatar && <img alt="ENS Avatar" src={ensAvatar} />}
