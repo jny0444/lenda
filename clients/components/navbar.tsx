@@ -31,12 +31,12 @@ export default function Navbar() {
   }
 
   return (
-    <div className="flex justify-between items-center p-3 pt-4 relative w-full">
+    <div className="flex justify-between items-center p-3 pt-4 relative w-full z-10">
       {/* Logo - Responsive sizing */}
       <div className="flex-shrink-0">
         <p className="text-3xl md:text-6xl transition-all duration-300 text-orange-50">
           <Link href={"/"}>
-            <span className="bg-white inline-flex items-center justify-center w-16 h-16 rounded-md">
+            <span className="bg-white inline-flex items-center justify-center w-10 md:w-16 h-10 md:h-16 rounded-md">
               {" "}
               💩
             </span>{" "}
