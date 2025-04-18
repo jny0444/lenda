@@ -42,19 +42,27 @@ export default function Home() {
               />
             </div>
           </div>
-          <div className="bg-white border text-black text-6xl border-white p-5 text-left rounded-xl flex flex-col items-start justify-center row-span-2">
+          <div className="bg-white border text-gray-700 text-6xl border-white p-5 text-left rounded-xl flex flex-col items-start justify-center row-span-2">
             <p>Swap.</p>
             <p>Stake.</p>
             <p>Create.</p>
-            <p>Your DeFi journey starts here.</p>
+            <p>
+              Your <span className="text-black">DeFi</span> journey starts here.
+            </p>
           </div>
           <div className="bg-white border text-black text-9xl border-white p-5 text-center rounded-xl flex items-center justify-center">
             Lenda
           </div>
         </div>
       </div>
+      <div className="h-[5vh]"></div>
       <div className="h-[100vh] w-full p-4 sm:p-6 md:p-3 text-center">
-        <p>More about lenda</p>
+        <p className="text-9xl text-left">
+          Why <span className="font-smibold">Lenda</span>?
+        </p>
+        <div className="w-full text-center text-7xl">
+          Paise double 7 din me
+        </div>
       </div>
     </div>
   );

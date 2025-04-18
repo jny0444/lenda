@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FiArrowUpRight } from "react-icons/fi";
+import { RiTokenSwapLine } from "react-icons/ri";
 
 // Define Token interface
 interface Token {
@@ -104,7 +106,7 @@ export default function Swap() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black pointer-events-none"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black pointer-events-none"></div>
       </div>
-      <div className="bg-black rounded-xl shadow-lg p-4 w-full max-w-md border border-gray-800 relative z-10">
+      <div className="bg-black rounded-xl shadow-lg p-4 w-full max-w-md border border-orange-50 relative z-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl text-white">Swap</h2>
         </div>
@@ -172,7 +174,7 @@ export default function Swap() {
             />
             <button
               onClick={() => setIsSelectingToken("from")}
-              className="flex items-center bg-black rounded-full py-1 px-2 ml-2"
+              className="flex items-center bg-black rounded-full py-1 px-2 md:-ml-8 -ml-96"
             >
               <div className="w-6 h-6 bg-black text-black rounded-full flex items-center justify-center mr-2">
                 🪙
@@ -180,17 +182,20 @@ export default function Swap() {
               <span className="text-orange-50 font-medium mr-1">
                 {inputToken.symbol}
               </span>
+              <span>
+                <FiArrowUpRight />
+              </span>
             </button>
           </div>
         </div>
 
         {/* Swap button */}
-        <div className="flex justify-center -my-3 relative z-10">
+        <div className="flex justify-center -my-4 relative z-10">
           <button
             onClick={handleSwapTokens}
-            className="bg-black text-2xl border border-gray-800 rounded-full p-1 w-10 h-10 hover:border-orange-50"
+            className="bg-black text-2xl border border-gray-800 rounded-full px-1.5 w-10 h-10 hover:border-orange-50"
           >
-            🤑
+            <RiTokenSwapLine />
           </button>
         </div>
 
@@ -212,13 +217,16 @@ export default function Swap() {
             />
             <button
               onClick={() => setIsSelectingToken("to")}
-              className="flex items-center bg-black rounded-full py-1 px-2 ml-2"
+              className="flex items-center bg-black rounded-full py-1 px-2 md:-ml-8 -ml-96"
             >
               <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2">
                 🪙
               </div>
               <span className="text-white font-medium mr-1">
                 {outputToken.symbol}
+              </span>
+              <span>
+                <FiArrowUpRight />
               </span>
             </button>
           </div>
@@ -232,7 +240,7 @@ export default function Swap() {
           }
           className={`w-full rounded-xl py-3 font-medium text-lg ${
             !inputAmount || !outputAmount || parseFloat(inputAmount) <= 0
-              ? "bg-black text-orange-50 border border-orange-50 cursor-not-allowed"
+              ? "bg-black text-orange-50 border border-dashed border-orange-50 cursor-not-allowed"
               : "bg-orange-50 hover:bg-orange-100 text-black"
           }`}
         >

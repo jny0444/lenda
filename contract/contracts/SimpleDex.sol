@@ -4,7 +4,14 @@ pragma solidity ^0.8.0;
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+interface IRouter {
+    function getFactoryAddress() external view returns (address);
+    function getRouterAddress() external view returns (address);
+    function getWETHAddress() external view returns (address);
+}
+
 contract SimpleDex {
+    IRouter public routerDeployed;
     IUniswapV2Router02 public router;
 
     constructor(address _router) {
@@ -29,13 +36,7 @@ contract SimpleDex {
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        router.swapExactTokensForTokens(
-            amountIn,
-            amountOutMin,
-            path,
-            msg.sender,
-            block.timestamp
-        );
+        router.swapExactTokensForTokens(amountIn, amountOutMin, path, msg.sender, block.timestamp);
     }
 
     function getOutputAmount(address tokenIn, address tokenOut, uint256 amountIn) external view returns (uint256) {
