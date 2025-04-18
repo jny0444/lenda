@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 
+// Define Token interface
+interface Token {
+  symbol: string;
+  name: string;
+  balance: string;
+}
+
 // Mock tokens data - in a real app, this would come from an API or blockchain
 const mockTokens = [
   { symbol: "ETH", name: "Ethereum", balance: "1.45" },
@@ -38,7 +45,7 @@ export default function Swap() {
     setOutputAmount(calculateOutputAmount(value));
   };
 
-  const handleTokenSelect = (token: any) => {
+  const handleTokenSelect = (token: Token) => {
     if (isSelectingToken === "from") {
       // Don't allow selecting the same token
       if (token.symbol === outputToken.symbol) {
