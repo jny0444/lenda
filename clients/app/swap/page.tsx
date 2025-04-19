@@ -31,7 +31,7 @@ function useTokens() {
   const { address: userAddress } = useAccount();
 
   // Fetch ETH balance directly using the useBalance hook
-  const { data: ethBalanceData, isLoading: ethBalanceLoading } = useBalance({
+  const { data: ethBalanceData } = useBalance({
     address: userAddress,
   });
 
@@ -117,12 +117,17 @@ function useTokens() {
 
   // Batch fetch token info
   const { data: tokenInfos } = useReadContracts({
-    contracts: tokenInfoCalls as any[],
+    contracts: tokenInfoCalls as Array<{
+      address: `0x${string}`;
+      abi: Abi;
+      functionName: string;
+      args: readonly [string];
+    }>,
   });
 
   // Batch fetch token balances and decimals
   const { data: tokenBalancesData } = useReadContracts({
-    contracts: balanceCalls as any[],
+    contracts: balanceCalls,
   });
 
   // Process the token data
@@ -135,7 +140,10 @@ function useTokens() {
 
     if (Array.isArray(tokenAddresses)) {
       tokenAddresses.forEach((address: string, index: number) => {
-        const info = tokenInfos?.[index]?.result as any;
+        const info = tokenInfos?.[index]?.result as {
+          name: string;
+          symbol: string;
+        };
         let balance = "0.00";
 
         // If we have balance data, format it properly
@@ -149,7 +157,7 @@ function useTokens() {
           if (rawBalance && decimals) {
             // Format the balance with proper decimal places
             balance = formatUnits(
-              rawBalance as bigint,
+              rawBalance as unknown as bigint,
               Number(decimals)
             ).toString();
 

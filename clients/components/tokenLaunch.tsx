@@ -21,7 +21,6 @@ export default function TokenLaunch() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [shouldShowMessage, setShouldShowMessage] = useState(false);
-  const [createdToken, setCreatedToken] = useState<`0x${string}` | null>(null);
 
   // Contract hooks
   const { createToken } = useTokenFactoryCreateToken();
@@ -35,7 +34,6 @@ export default function TokenLaunch() {
       // Type cast the log to access args with the expected structure
       const log = logs[0] as unknown as { args: TokenCreatedEvent };
       const tokenAddress = log.args?.tokenAddress || "Check your wallet";
-      setCreatedToken(tokenAddress);
       setMessage(
         `Token creation successful! Token address: ${tokenAddress}\nYour token has been added to the token list.`
       );
@@ -84,7 +82,6 @@ export default function TokenLaunch() {
     setSymbol("");
     setMessage("");
     setShouldShowMessage(false);
-    setCreatedToken(null);
   };
 
   return (
