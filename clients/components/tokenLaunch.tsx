@@ -20,6 +20,8 @@ export default function TokenLaunch() {
   const [symbol, setSymbol] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [shouldShowMessage, setShouldShowMessage] = useState(false);
+  const [createdToken, setCreatedToken] = useState<`0x${string}` | null>(null);
 
   // Contract hooks
   const { createToken } = useTokenFactoryCreateToken();
@@ -33,7 +35,11 @@ export default function TokenLaunch() {
       // Type cast the log to access args with the expected structure
       const log = logs[0] as unknown as { args: TokenCreatedEvent };
       const tokenAddress = log.args?.tokenAddress || "Check your wallet";
-      setMessage(`Token creation successful! Token address: ${tokenAddress}`);
+      setCreatedToken(tokenAddress);
+      setMessage(
+        `Token creation successful! Token address: ${tokenAddress}\nYour token has been added to the token list.`
+      );
+      setShouldShowMessage(true);
       setIsLoading(false);
     },
   });
@@ -44,18 +50,22 @@ export default function TokenLaunch() {
 
     if (!isConnected) {
       setMessage("Please connect your wallet first");
+      setShouldShowMessage(true);
       return;
     }
 
     if (!name || !symbol) {
       setMessage("Please enter both token name and symbol");
+      setShouldShowMessage(true);
       return;
     }
 
     try {
       setIsLoading(true);
       setMessage("Creating token, please confirm the transaction...");
+      setShouldShowMessage(true);
       await createToken(name, symbol);
+      // Loading state cleared when TokenCreated event is received
     } catch (error) {
       console.error("Error creating token:", error);
       setMessage(
@@ -63,77 +73,76 @@ export default function TokenLaunch() {
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+      setShouldShowMessage(true);
       setIsLoading(false);
     }
   };
 
+  // Reset form and message
+  const resetForm = () => {
+    setName("");
+    setSymbol("");
+    setMessage("");
+    setShouldShowMessage(false);
+    setCreatedToken(null);
+  };
+
   return (
-    <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md mt-10">
-      <h1 className="text-2xl font-bold mb-6 text-center">Launch Your Token</h1>
+    <div>
+      <h1>Launch Your Token</h1>
 
-      {!isConnected && (
-        <div className="p-4 bg-yellow-100 text-yellow-800 rounded mb-4">
-          Please connect your wallet to create a token
-        </div>
-      )}
+      {!isConnected && <div>Please connect your wallet to create a token</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit}>
         {/* Token Name Input */}
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Token Name
-          </label>
+          <label htmlFor="name">Token Name</label>
           <input
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Ethereum"
-            className="w-full p-2 mt-1 border rounded"
-            disabled={!isConnected || isLoading}
+            placeholder="e.g. My Custom Token"
+            disabled={isLoading}
           />
         </div>
 
         {/* Token Symbol Input */}
         <div>
-          <label
-            htmlFor="symbol"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Token Symbol
-          </label>
+          <label htmlFor="symbol">Token Symbol</label>
           <input
             id="symbol"
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            placeholder="e.g., ETH"
-            className="w-full p-2 mt-1 border rounded"
-            disabled={!isConnected || isLoading}
+            placeholder="e.g. MCT"
+            disabled={isLoading}
           />
         </div>
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!isConnected || isLoading}
-          className="w-full p-2 text-white bg-indigo-600 rounded disabled:bg-gray-400"
+          disabled={!isConnected || isLoading || !name || !symbol}
         >
-          {isLoading ? "Processing..." : "Launch Token"}
+          {isLoading ? "Creating..." : "Create Token"}
+        </button>
+
+        {/* Reset Button */}
+        <button type="button" onClick={resetForm} disabled={isLoading}>
+          Reset
         </button>
       </form>
 
-      {/* Status Messages */}
-      {message && (
-        <div
-          className={`mt-4 p-3 rounded ${
-            message.includes("Error")
-              ? "bg-red-100 text-red-800"
-              : "bg-green-100 text-green-800"
-          }`}
-        >
-          {message}
+      {/* Status Message */}
+      {shouldShowMessage && <div className="message">{message}</div>}
+
+      {/* Additional guidance if token was created */}
+      {createdToken && (
+        <div className="success-info">
+          <p>
+            Your token has been successfully created and added to the token
+            list.
+          </p>
+          <p>You can view it in the token list section.</p>
         </div>
       )}
     </div>

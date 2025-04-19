@@ -26,6 +26,11 @@ contract TokenFactory {
         return address(newToken);
     }
 
+    function getTokenInfo(address tokenAddress) external view returns (TokenInfo memory) {
+        TokenInfo memory info = tokenInfo[tokenAddress];
+        return info;
+    }
+
     function getAllTokens() external view returns (address[] memory) {
         return tokens;
     }
