@@ -73,7 +73,7 @@ export function TokenFactoryGetAllTokens() {
 
           return (
             <li key={token}>
-              <strong>{token}</strong> — {name} ({symbol})
+              {name} ({symbol}) <span>{`${token.slice(0, 4)}...${token.slice(-4)}`}</span>
             </li>
           );
         })}

@@ -134,17 +134,6 @@ export default function TokenLaunch() {
 
       {/* Status Message */}
       {shouldShowMessage && <div className="message">{message}</div>}
-
-      {/* Additional guidance if token was created */}
-      {createdToken && (
-        <div className="success-info">
-          <p>
-            Your token has been successfully created and added to the token
-            list.
-          </p>
-          <p>You can view it in the token list section.</p>
-        </div>
-      )}
     </div>
   );
 }

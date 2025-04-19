@@ -1,32 +1,263 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 import { RiTokenSwapLine } from "react-icons/ri";
+import {
+  useReadContract,
+  useReadContracts,
+  useAccount,
+  useBalance,
+} from "wagmi";
+import { tokenFactoryConfig } from "../../utils/contracts";
+import { Abi, formatUnits } from "viem";
+import { useWatchContractEvent } from "wagmi";
 
 // Define Token interface
 interface Token {
   symbol: string;
   name: string;
   balance: string;
+  address: string;
 }
 
-// Mock tokens data - in a real app, this would come from an API or blockchain
+// Custom hook to get tokens from the blockchain
+function useTokens() {
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Get the connected wallet address
+  const { address: userAddress } = useAccount();
+
+  // Fetch ETH balance directly using the useBalance hook
+  const { data: ethBalanceData, isLoading: ethBalanceLoading } = useBalance({
+    address: userAddress,
+  });
+
+  // Get all token addresses from TokenFactory contract
+  const {
+    data: tokenAddresses,
+    isLoading: addressesLoading,
+    refetch,
+  } = useReadContract({
+    ...tokenFactoryConfig,
+    functionName: "getAllTokens",
+    args: [],
+  });
+
+  // Watch for TokenCreated events to refresh the list
+  useWatchContractEvent({
+    ...tokenFactoryConfig,
+    eventName: "TokenCreated",
+    onLogs() {
+      // Refresh the token list when a new token is created
+      refetch();
+      setRefreshTrigger((prev) => prev + 1);
+    },
+  });
+
+  // Create token info calls for batch fetching
+  const tokenInfoCalls = useMemo(() => {
+    if (!tokenAddresses || !Array.isArray(tokenAddresses)) return [];
+
+    return tokenAddresses.map((tokenAddress: string) => ({
+      address: tokenFactoryConfig.address,
+      abi: tokenFactoryConfig.abi as Abi,
+      functionName: "getTokenInfo",
+      args: [tokenAddress] as const,
+    }));
+  }, [tokenAddresses]);
+
+  // Create balance calls for each token
+  const balanceCalls = useMemo(() => {
+    if (!tokenAddresses || !Array.isArray(tokenAddresses) || !userAddress)
+      return [];
+
+    const erc20BalanceAbi = [
+      {
+        inputs: [{ internalType: "address", name: "account", type: "address" }],
+        name: "balanceOf",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "decimals",
+        outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+        stateMutability: "view",
+        type: "function",
+      },
+    ] as const;
+
+    // For each token, create two calls: one for balance and one for decimals
+    const calls = [];
+
+    for (const tokenAddress of tokenAddresses) {
+      // Add balance call
+      calls.push({
+        address: tokenAddress as `0x${string}`,
+        abi: erc20BalanceAbi,
+        functionName: "balanceOf",
+        args: [userAddress],
+      });
+
+      // Add decimals call
+      calls.push({
+        address: tokenAddress as `0x${string}`,
+        abi: erc20BalanceAbi,
+        functionName: "decimals",
+        args: [],
+      });
+    }
+
+    return calls;
+  }, [tokenAddresses, userAddress]);
+
+  // Batch fetch token info
+  const { data: tokenInfos } = useReadContracts({
+    contracts: tokenInfoCalls as any[],
+  });
+
+  // Batch fetch token balances and decimals
+  const { data: tokenBalancesData } = useReadContracts({
+    contracts: balanceCalls as any[],
+  });
+
+  // Process the token data
+  useEffect(() => {
+    if (!tokenAddresses && !ethBalanceData) {
+      return;
+    }
+
+    const processedTokens: Token[] = [];
+
+    if (Array.isArray(tokenAddresses)) {
+      tokenAddresses.forEach((address: string, index: number) => {
+        const info = tokenInfos?.[index]?.result as any;
+        let balance = "0.00";
+
+        // If we have balance data, format it properly
+        if (tokenBalancesData && userAddress) {
+          const balanceIndex = index * 2; // Each token has 2 calls (balance, decimals)
+          const decimalsIndex = index * 2 + 1;
+
+          const rawBalance = tokenBalancesData[balanceIndex]?.result;
+          const decimals = tokenBalancesData[decimalsIndex]?.result;
+
+          if (rawBalance && decimals) {
+            // Format the balance with proper decimal places
+            balance = formatUnits(
+              rawBalance as bigint,
+              Number(decimals)
+            ).toString();
+
+            // Limit to max 4 decimal places for display
+            const parts = balance.split(".");
+            if (parts.length > 1 && parts[1].length > 4) {
+              balance = `${parts[0]}.${parts[1].substring(0, 4)}`;
+            }
+          }
+        }
+
+        processedTokens.push({
+          address: address,
+          name: info?.name || "Unknown Token",
+          symbol: info?.symbol || "???",
+          balance,
+        });
+      });
+    }
+
+    // Get ETH balance using the useBalance hook
+    let ethBalance = "0.00";
+    if (ethBalanceData) {
+      // Format ETH balance to show only 4 decimal places
+      const parts = ethBalanceData.formatted.split(".");
+      if (parts.length > 1 && parts[1].length > 4) {
+        ethBalance = `${parts[0]}.${parts[1].substring(0, 4)}`;
+      } else {
+        ethBalance = ethBalanceData.formatted;
+      }
+    }
+
+    const allTokens = [
+      {
+        address: "0x0000000000000000000000000000000000000000",
+        name: "Ethereum",
+        symbol: "ETH",
+        balance: ethBalance,
+      },
+      ...processedTokens,
+    ];
+
+    setTokens(allTokens);
+    setIsLoading(false);
+  }, [
+    tokenAddresses,
+    tokenInfos,
+    tokenBalancesData,
+    addressesLoading,
+    ethBalanceData,
+    refreshTrigger,
+    userAddress,
+  ]);
+
+  return { tokens, isLoading };
+}
+
+// Mock tokens as fallback
 const mockTokens = [
-  { symbol: "ETH", name: "Ethereum", balance: "1.45" },
-  { symbol: "USDC", name: "USD Coin", balance: "425.50" },
-  { symbol: "USDT", name: "Tether", balance: "350.75" },
-  { symbol: "DAI", name: "Dai", balance: "278.30" },
+  {
+    symbol: "ETH",
+    name: "Ethereum",
+    balance: "0",
+    address: "0x0000000000000000000000000000000000000000",
+  },
+  {
+    symbol: "USDC",
+    name: "USD Coin",
+    balance: "0",
+    address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  },
+  {
+    symbol: "USDT",
+    name: "Tether",
+    balance: "0",
+    address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  },
+  {
+    symbol: "DAI",
+    name: "Dai",
+    balance: "0",
+    address: "0x6b175474e89094c44da98b954eedeac495271d0f",
+  },
 ];
 
 export default function Swap() {
-  const [inputToken, setInputToken] = useState(mockTokens[0]);
-  const [outputToken, setOutputToken] = useState(mockTokens[1]);
+  // Use our custom hook to fetch tokens from the blockchain
+  const { tokens, isLoading } = useTokens();
+
+  // Fallback to mock tokens if loading or no tokens found
+  const availableTokens =
+    isLoading || !tokens || tokens.length === 0 ? mockTokens : tokens;
+
+  const [inputToken, setInputToken] = useState(availableTokens[0]);
+  const [outputToken, setOutputToken] = useState(availableTokens[1]);
   const [inputAmount, setInputAmount] = useState("");
   const [outputAmount, setOutputAmount] = useState("");
   const [isSelectingToken, setIsSelectingToken] = useState<
     "from" | "to" | null
   >(null);
+
+  // Update tokens when they load from the blockchain
+  useEffect(() => {
+    if (!isLoading && tokens && tokens.length >= 2) {
+      setInputToken(tokens[0]);
+      setOutputToken(tokens[1]);
+    }
+  }, [isLoading, tokens]);
 
   // Mock function to simulate price calculation
   const calculateOutputAmount = (input: string) => {
@@ -133,24 +364,32 @@ export default function Swap() {
                 </button>
               </div>
               <div className="space-y-2 relative z-10">
-                {mockTokens.map((token) => (
-                  <div
-                    key={token.symbol}
-                    onClick={() => handleTokenSelect(token)}
-                    className="flex items-center p-2 rounded-lg hover:bg-gray-900 cursor-pointer"
-                  >
-                    <div className="w-8 h-8 text-2xl rounded-full flex items-center justify-center mr-2">
-                      🪙
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">
-                        {token.symbol}
+                {isLoading ? (
+                  <div className="text-center py-4">Loading tokens...</div>
+                ) : (
+                  availableTokens.map((token) => (
+                    <div
+                      key={token.symbol + token.address}
+                      onClick={() => handleTokenSelect(token)}
+                      className="flex items-center p-2 rounded-lg hover:bg-gray-900 cursor-pointer"
+                    >
+                      <div className="w-8 h-8 text-2xl rounded-full flex items-center justify-center mr-2">
+                        🪙
                       </div>
-                      <div className="text-sm text-gray-400">{token.name}</div>
+                      <div>
+                        <div className="font-medium text-white">
+                          {token.symbol}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {token.name}
+                        </div>
+                      </div>
+                      <div className="ml-auto text-gray-400">
+                        {token.balance}
+                      </div>
                     </div>
-                    <div className="ml-auto text-gray-400">{token.balance}</div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
