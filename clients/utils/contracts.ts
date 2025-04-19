@@ -21,6 +21,6 @@ export const simpleDexConfig = {
 } as const;
 
 export const tokenFactoryConfig = {
-  address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   abi: ABIs.TokenFactory,
 } as const;

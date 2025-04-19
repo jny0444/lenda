@@ -1,11 +1,7 @@
-// contains the list of all the tokens  ! priority
-// you can also launch your own token(not sure)  ! try to implement
+"use client";
 
-export default function TokenLaunch() {
-  return (
-    <div>
-      <h1>Token Launch</h1>
-      <p>Launch your token here!</p>
-    </div>
-  );
+import TokenLaunch from "@/components/tokenLaunch";
+
+export default function TokenPage() {
+  return <TokenLaunch />;
 }

@@ -1,9 +1,16 @@
-import { useWriteContract } from "wagmi";
+import { useAccount, useWatchContractEvent, useWriteContract } from "wagmi";
+import { tokenFactoryConfig } from "./contracts";
 
 export function useTokenFactoryCreateToken() {
-    const { writeContract, isPending, error, data: addressNewToken } = useWriteContract();
+  const { writeContract } = useWriteContract();
 
-    function createToken(name: string, symbol: string) {
-        
-    }
+  async function createToken(name: string, symbol: string) {
+    return writeContract({
+      ...tokenFactoryConfig,
+      functionName: "createToken",
+      args: [name, symbol],
+    });
+  }
+
+  return { createToken };
 }
