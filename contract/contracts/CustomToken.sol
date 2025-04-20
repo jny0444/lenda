@@ -15,8 +15,11 @@ contract CustomToken is ERC20 {
         _mint(to, amount);
     }
 
+    function faucetMint(uint256 amount) external {
+        _mint(msg.sender, amount);
+    }
+
     function burn(uint256 amount) external {
         _burn(msg.sender, amount);
     }
-    
 }

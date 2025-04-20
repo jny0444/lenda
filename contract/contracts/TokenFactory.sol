@@ -17,18 +17,21 @@ contract TokenFactory {
 
     function createToken(string memory name, string memory symbol) external returns (address) {
         CustomToken newToken = new CustomToken(name, symbol);
+        newToken.mint(msg.sender, 1000 ether); // Initial mint
 
         tokens.push(address(newToken));
         tokenInfo[address(newToken)] = TokenInfo(name, symbol);
 
         emit TokenCreated(address(newToken), name, symbol, msg.sender);
-
         return address(newToken);
     }
 
+    function faucet(address tokenAddress, uint256 amount) external {
+        CustomToken(tokenAddress).faucetMint(amount);
+    }
+
     function getTokenInfo(address tokenAddress) external view returns (TokenInfo memory) {
-        TokenInfo memory info = tokenInfo[tokenAddress];
-        return info;
+        return tokenInfo[tokenAddress];
     }
 
     function getAllTokens() external view returns (address[] memory) {
