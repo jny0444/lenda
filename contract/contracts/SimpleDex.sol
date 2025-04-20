@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IRouter {
@@ -16,6 +17,7 @@ contract SimpleDex {
 
     constructor(address _router) {
         router = IUniswapV2Router02(_router);
+        routerDeployed = IRouter(_router);
     }
 
     function addLiquidity(address tokenA, address tokenB, uint256 amountA, uint256 amountB) external {
@@ -28,13 +30,25 @@ contract SimpleDex {
         router.addLiquidity(tokenA, tokenB, amountA, amountB, 1, 1, msg.sender, block.timestamp);
     }
 
+    function removeLiquidity(address tokenA, address tokenB, uint256 liquidity) external {
+        address factory = router.factory();
+        address pair = IUniswapV2Factory(factory).getPair(tokenA, tokenB);
+        require(pair != address(0), "Pair does not exist");
+
+        IERC20(pair).transferFrom(msg.sender, address(this), liquidity);
+        IERC20(pair).approve(address(router), liquidity);
+
+        router.removeLiquidity(tokenA, tokenB, liquidity, 1, 1, msg.sender, block.timestamp);
+    }
+
     function swapTokensForTokens(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOutMin) external {
         IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
         IERC20(tokenIn).approve(address(router), amountIn);
 
-        address[] memory path = new address[](2);
+        address[] memory path = new address[](3);
         path[0] = tokenIn;
-        path[1] = tokenOut;
+        path[1] = routerDeployed.getWETHAddress();
+        path[2] = tokenOut;
 
         router.swapExactTokensForTokens(amountIn, amountOutMin, path, msg.sender, block.timestamp);
     }
@@ -42,9 +56,10 @@ contract SimpleDex {
     function getOutputAmount(address tokenIn, address tokenOut, uint256 amountIn) external view returns (uint256) {
         address[] memory path = new address[](2);
         path[0] = tokenIn;
-        path[1] = tokenOut;
+        path[1] = routerDeployed.getWETHAddress();
+        path[2] = tokenOut;
 
         uint256[] memory amounts = router.getAmountsOut(amountIn, path);
-        return amounts[1];
+        return amounts[2];
     }
 }
