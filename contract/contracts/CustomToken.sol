@@ -22,4 +22,8 @@ contract CustomToken is ERC20 {
     function burn(uint256 amount) external {
         _burn(msg.sender, amount);
     }
+
+    function getBalance() public view returns (uint256) {
+        return balanceOf(msg.sender);
+    }
 }

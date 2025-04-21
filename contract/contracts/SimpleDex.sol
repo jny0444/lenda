@@ -30,6 +30,13 @@ contract SimpleDex {
         router.addLiquidity(tokenA, tokenB, amountA, amountB, 1, 1, msg.sender, block.timestamp);
     }
 
+    function addLiquidityWithETH(address token, uint256 tokenAmount) external payable {
+        IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
+        IERC20(token).approve(address(router), tokenAmount);
+
+        router.addLiquidityETH{value: msg.value}(token, tokenAmount, 1, 1, msg.sender, block.timestamp);
+    }
+
     function removeLiquidity(address tokenA, address tokenB, uint256 liquidity) external {
         address factory = router.factory();
         address pair = IUniswapV2Factory(factory).getPair(tokenA, tokenB);
@@ -39,6 +46,17 @@ contract SimpleDex {
         IERC20(pair).approve(address(router), liquidity);
 
         router.removeLiquidity(tokenA, tokenB, liquidity, 1, 1, msg.sender, block.timestamp);
+    }
+
+    function removeLiquidityWithETH(address token, uint256 liquidity) external {
+        address factory = router.factory();
+        address pair = IUniswapV2Factory(factory).getPair(token, routerDeployed.getWETHAddress());
+        require(pair != address(0), "Pair does not exist");
+
+        IERC20(pair).transferFrom(msg.sender, address(this), liquidity);
+        IERC20(pair).approve(address(router), liquidity);
+
+        router.removeLiquidityETH(token, liquidity, 1, 1, msg.sender, block.timestamp);
     }
 
     function swapTokensForTokens(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOutMin) external {

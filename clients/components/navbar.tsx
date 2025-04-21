@@ -82,7 +82,7 @@ export default function Navbar() {
       <div
         className={`${
           isMenuOpen
-            ? "flex flex-col absolute top-20 left-1/2 transform -translate-x-1/2 bg-black py-4 shadow-lg z-10 rounded-md min-w-[150px] border border-gray-800"
+            ? "flex flex-col absolute top-20 left-1/2 transform -translate-x-1/2 bg-black p-4 shadow-lg z-10 rounded-md min-w-[150px] border border-gray-800"
             : "hidden"
         } md:flex md:flex-row md:bg-transparent md:shadow-none md:gap-4 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:border-none`}
       >

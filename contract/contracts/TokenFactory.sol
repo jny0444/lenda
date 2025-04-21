@@ -30,6 +30,10 @@ contract TokenFactory {
         CustomToken(tokenAddress).faucetMint(amount);
     }
 
+    function getBalanceOfUser(address tokenAddress) external view returns (uint256) {
+        return CustomToken(tokenAddress).getBalance();
+    }
+
     function getTokenInfo(address tokenAddress) external view returns (TokenInfo memory) {
         return tokenInfo[tokenAddress];
     }
